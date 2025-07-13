@@ -1,0 +1,22 @@
+[project]
+name = "olympiad-ai-agent-exercise"
+version = "0.1.0"
+description = "Olympiad AI Agent Exercise"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langgraph",
+    "langchain",
+    "langchain-openai",
+    "langsmith",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/olympiad_ai_agent_exercise"]
