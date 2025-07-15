@@ -8,7 +8,7 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from olympiad_ai_agent_exercise.nodes import ChatNode
+from olympiad_ai_agent_exercise.nodes import ChatNode, PlanningNode
 from olympiad_ai_agent_exercise.settings import Settings
 from olympiad_ai_agent_exercise.state import State
 from olympiad_ai_agent_exercise.tools import tools
@@ -20,24 +20,28 @@ class Agent(BaseModel):
     model_name: Annotated[str, Field(default_factory=lambda: Settings().MODEL_NAME)]
 
     _llm: ChatOpenAI
+    _llm_with_tools: ChatOpenAI
     _graph: CompiledStateGraph
 
     @model_validator(mode="after")
     def _build_graph(self) -> "Agent":
         # Initialize the LLM with tools
-        self._llm = init_chat_model(f"openai:{self.model_name}").bind_tools(tools)
+        self._llm = init_chat_model(f"openai:{self.model_name}")
+        self._llm_with_tools = self._llm.bind_tools(tools)
 
         # Build the graph
         graph_builder = StateGraph(State)
 
         # Define the nodes
-        graph_builder.add_node("chat", ChatNode(llm=self._llm))
+        graph_builder.add_node("planning", PlanningNode(llm=self._llm))
+        graph_builder.add_node("chat", ChatNode(llm=self._llm_with_tools))
         graph_builder.add_node("tools", ToolNode(tools=tools))
 
         # Define the edges
-        graph_builder.add_edge(START, "chat")
+        graph_builder.add_edge(START, "planning")
+        graph_builder.add_edge("planning", "chat")
         graph_builder.add_conditional_edges("chat", tools_condition)
-        # Any time a tool is called, we return to the chatbot to decide the next step
+        # Any time a tool is called, we return to the chat node to decide the next step
         graph_builder.add_edge("tools", "chat")
 
         self._graph = graph_builder.compile(checkpointer=MemorySaver())
