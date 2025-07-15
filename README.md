@@ -32,6 +32,7 @@ Create a `.env` file in the root of the project and add your environment variabl
 #### Required Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key
+- `TAVILY_API_KEY`: Your Tavily API key for web search
 - `LANGCHAIN_API_KEY`: Your LangChain API key for LangSmith tracing
 
 #### Optional Environment Variables
