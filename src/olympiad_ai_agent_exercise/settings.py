@@ -20,3 +20,5 @@ class Settings(BaseSettings):
     LANGCHAIN_PROJECT: str = "su-olympiad-lecture"
 
     MODEL_NAME: str = "gpt-4o-mini"
+
+    DATA_DIR: str = "./data"

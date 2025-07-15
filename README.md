@@ -46,18 +46,11 @@ Create a `.env` file in the root of the project and add your environment variabl
 uv run main.py
 ```
 
-## Agent Components
+## Agent Design
+
+![Agent Design](assets/graph.png)
 
 - Planning
 - Tools
-    - RAG (Retrieval-Augmented Generation)
     - Web Search
-    - API Calls
-    - MCP (Multi-Context Protocol)
     - File System
-    - Database
-    - Code Interpreter
-- Iteration
-- Memory
-- Evaluation
-- Security

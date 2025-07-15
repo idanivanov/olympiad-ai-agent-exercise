@@ -2,6 +2,7 @@ from typing import Annotated, Any, Iterator
 
 from langchain.chat_models import init_chat_model
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -39,7 +40,7 @@ class Agent(BaseModel):
         # Any time a tool is called, we return to the chatbot to decide the next step
         graph_builder.add_edge("tools", "chat")
 
-        self._graph = graph_builder.compile()
+        self._graph = graph_builder.compile(checkpointer=MemorySaver())
         return self
 
     def stream(self, user_input: str) -> Iterator[dict[str, Any] | Any]:
@@ -51,9 +52,10 @@ class Agent(BaseModel):
                         "content": user_input
                     }
                 ]
-            }
+            },
+            config={"configurable": {"thread_id": "1"}}
         )
 
-    def save_graph_to_png(self, file_path: str = "graph.png") -> None:
+    def save_graph_to_png(self, file_path: str = "assets/graph.png") -> None:
         with open(file_path, "wb") as file_descr:
             file_descr.write(self._graph.get_graph().draw_mermaid_png())
